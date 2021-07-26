@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ANATELLA version='2.41'>
+<GlobalParameters wDirLoc='1' dataDirWrite='&quot;:/reports'>
+<Parameters>
+<Par name='timestamp'>_RD_20210623095555</Par>
+</Parameters>
+</GlobalParameters>
+<WorkingSpace>AAAA/wAAAAD9AAAAAgAAAAEAAAEAAAAB5vwCAAAAAfsAAAAcAEEAbABsAEEAYwB0AGkAbwBuAHMARABvAGMAawEAAABZAAAB5gAAAHgA////AAAAAwAABJAAAAEL/AEAAAAC+wAAACgAQQBjAHQAaQBvAG4AUAByAG8AcABlAHIAdABpAGUAcwBEAG8AYwBrAQAAAAAAAALbAAACqQD////8AAAC3wAAAbEAAAGUAP////oAAAABAQAAAAL7AAAADgBMAG8AZwBEAG8AYwBrAQAAAAD/////AAAAYAD////7AAAAGgBEAGEAdABhAFQAYQBiAGwAZQBEAG8AYwBrAQAAAAD/////AAABlAD///8AAAOMAAAB5gAAAAQAAAAEAAAACAAAAAj8AAAAAQAAAAIAAAADAAAAFgBtAGEAaQBuAFQAbwBvAGwAQgBhAHIBAAAAAP////8AAAAAAAAAAAAAABYAdABlAHgAdABUAG8AbwBsAEIAYQByAQAAAwr/////AAAAAAAAAAAAAAAeAGcAcgBvAHUAcABCAG8AeABUAG8AbwBsAEIAYQByAQAABEH/////AAAAAAAAAAA=</WorkingSpace>
+<ACTIONS>
+<RunToFinishLine idx='1' x='801' y='-363' nPinIn='26'/>
+<Generic idx='2' x='640' y='-337' id='setGlobalParameters'
+  longName='set the value of some global Parameters'
+  le='1438699377232'
+  shape='3'
+  keywords='set global paramater'
+  image='/setGlobalParameters.svg'
+  author='Frank Vanden Berghen'
+  revision='0.08'
+  tags='800_Other'>
+<Description>
+&lt;html&gt;
+Set the value of some Global Parameters.&lt;br /&gt;&lt;br /&gt;
+The input table contains 2 columns:&lt;ol&gt;
+&lt;li&gt;The name of the Global Parameters to set.&lt;/li&gt;
+&lt;li&gt;The new value of the Global Parameter.&lt;/li&gt;&lt;/ol&gt;
+If the second column is omitted, the Global Parameter is reset to an empty string.&lt;br /&gt;
+&lt;br /&gt;
+The behavior is:&lt;ol&gt;
+&lt;li&gt;NEW: Set or Update all Global Paramaters and then continue. The input table is not forwarded to the ouput.&lt;/li&gt;
+&lt;li&gt;OLD: Set one Global Paramaters and directly forward the input row to the ouput&lt;/li&gt;&lt;/ol&gt;
+</Description>
+<Parameters>
+  <Parameter id='parName' text='The Global Parameter Names' type='onecolumn'><meta>0</meta><data>name</data></Parameter>
+  <Parameter id='parValue' text='The Global Parameter Values' type='onecolumn'><meta>0</meta><data>value</data></Parameter>
+  <Parameter id='setOnlyIfEmpty' text='Only set value if Global Parameter is empty' type='bool'>0</Parameter>
+  <Parameter id='behavior' text='Behavior' type='combobox'><meta>&lt;i&gt;New Behavior&lt;/i&gt;&lt;i&gt;Old Behavior&lt;/i&gt;</meta><data>0</data></Parameter>
+</Parameters>
+<Script>
+function init()
+{
+    if (behavior==0) return 0;
+    var r=getCurrentRow();
+    if (!r.isNull) setOutputRowSize(0,r.nColumn);
+    return 0;
+}
+
+function setGP(name,r)
+{
+    if (parValue&lt;0)
+    {
+        var assign=new Function(name+"=\"\";");
+        assign();
+    } else
+    {
+        var t=""+r.col(parValue);
+        t=t.replace(new RegExp("\\\\", 'g'), "\\\\");
+        t=t.replace(new RegExp("\"", 'g'), "\\\"");
+        t=t.replace(new RegExp("\n", 'g'), "");
+        t=t.replace(new RegExp("\r", 'g'), "");
+        t=name+"=\""+t+"\";"
+        var assign=new Function(t);
+        assign();
+    }
+}
+
+function setGP2(r)
+{
+   var name=r.col(parName);
+    var testIfExists=new Function("return typeof("+name+");");
+    if (testIfExists()=="undefined") { newGlobalVar(name); setGP(name,r); return;  }
+    if (!setOnlyIfEmpty) { setGP(name,r); return; }
+    var getValue=new Function("return "+name+";");
+    if (getValue()!="") setGP(name,r);
+}
+
+function run()
+{
+    if (behavior==0)
+    {
+        for(;;)
+        {
+            var r=getNextRow();
+            if (r.isNull) return 1;
+            if (userAskedAbort()) return 1;
+            setGP2(r);
+        }
+    }
+    
+    var r=getNextRow();
+    if (r.isNull) return 1;
+    r.write(); 
+    writeEOL();
+    setGP2(r);
+    return 0;
+}
+</Script>
+</Generic>
+<Calculator module='MathParser' idx='3' x='486' y='-335' addNowS='1' dateFormat='yyyyMMddHHmmss'>
+  <InputVars>
+  </InputVars>
+  <OutputVars>
+    <OutputVar name='value' meta='U'>"_RD_"//_nowS</OutputVar>
+    <OutputVar name='name' meta='U'>"timestamp"</OutputVar>
+  </OutputVars>
+</Calculator>
+<inlineTable idx='4' x='335' y='-335'>
+<ColumnNames><c>C1</c></ColumnNames>
+<Rows>
+ <r><c>1</c></r>
+</Rows>
+</inlineTable>
+<inlineTable idx='5' x='335' y='-206'>
+<ColumnNames><c>C1</c></ColumnNames>
+<Rows>
+ <r><c>value</c></r>
+</Rows>
+</inlineTable>
+<Calculator keyHD='162445254804864759' module='MathParser' idx='6' x='486' y='-206' addNowS='1' dateFormat='yyyyMMddHHmmss'>
+  <InputVars>
+  </InputVars>
+  <OutputVars>
+    <OutputVar name='value' meta='U'>"_RD_"//_nowS</OutputVar>
+    <OutputVar name='name' meta='U'>"timestamp"</OutputVar>
+  </OutputVars>
+</Calculator>
+<writeCSV idx='7' x='637' y='-206' sep=';' filename='&gt;&quot;:/reports/REPORT&quot; +timestamp +&quot;.csv&quot;'/>
+</ACTIONS>
+<CONNECTORS>
+<Connection idxSrc='4' idxDest='3'/>
+<Connection idxSrc='3' idxDest='2'/>
+<Connection idxSrc='2' idxDest='1' idxPinIn='2'/>
+<Connection idxSrc='5' idxDest='6'/>
+<Connection idxSrc='6' idxDest='7'/>
+<Connection idxSrc='7' idxDest='1' idxPinIn='13'/>
+</CONNECTORS>
+<TEXTANNOTATIONS>
+</TEXTANNOTATIONS>
+<GROUPBOXANNOTATIONS>
+</GROUPBOXANNOTATIONS>
+</ANATELLA>
